@@ -5,7 +5,7 @@ import sys
 # step 0: write current algorithm to stdout
 print "Python: numpy.fft.fft()"
 
-# step 1: read input file
+# step 1: read input file from command line arg
 # file format:
 #              # values
 #              value 1
