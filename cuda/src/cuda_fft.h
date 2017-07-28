@@ -8,11 +8,12 @@
 #define MIN(x,y) ((x<y)?x:y)
 #define MAX(x,y) ((x>y)?x:y)
 #define cuPI 3.14159265359
-#define MAX_THREADS 2
+#define MAX_THREADS 1024
 
 typedef thrust::complex<double> thCdouble;
 
 __global__ void fft_kernel_shared(thCdouble *x, int n, direction dir);
 __global__ void fft_kernel_finish(thCdouble *x, int n, direction dir);
+__global__ void bit_reverse_kernel(thCdouble *out, thCdouble *in, int n);
 
 #endif

@@ -12,51 +12,65 @@ __device__ int d_bitReverse(unsigned int b, int d)
 }
 
 
+
+__global__ void bit_reverse_kernel(thCdouble *out, thCdouble *in, int n)
+{ 
+	int tid = threadIdx.x;
+	int offset = blockIdx.x * blockDim.x;
+    int myId = tid + offset;
+    int d = log2f(n);
+	n = MIN(n, MAX_THREADS);
+	out[ myId ] = in[ d_bitReverse(myId, d) ];
+}
+
+
+
 // iterative FFT with shared memory
-// for n elements, require n/2 threads
-// the result of this kernel for n<=2048 is the complete FFT
-// for n>2048, fft_kernel_finish must be called to complete
-// the FFT in global memory
 __global__ void fft_kernel_shared(thCdouble *x, int n, direction dir)
 {
  	int tid = threadIdx.x;
-    int myId = tid + blockIdx.x * blockDim.x;
-    int d = log2f(n);
-	n = MIN(n, 2*MAX_THREADS);
+	int offset = blockIdx.x * blockDim.x;
+    int myId = tid + offset;
+	n = MIN(n, MAX_THREADS);
 
     // perform bit-reverse swapping (from global memory to shared)
     // i.e. from global x into block shared array of complexes
     extern __shared__ thCdouble sdata[];
-	sdata[ 2*tid ] = x[ d_bitReverse(2*myId, d) ];
-	sdata[ 2*tid+1 ] = x[ d_bitReverse(2*myId+1, d) ];
+	sdata[tid] = x[myId];
 	__syncthreads();
 
     // perform iterative fft loop
 	// m = number of elements at current iteration (tree level)
-    for(int m=2; m <= n; m<<=1)
+	// so each iteration is computing the m element dft of the elements in its subtree
+	thCdouble t;
+   	thCdouble u;
+ 	for(int m=2; m <= n; m<<=1)
     {
 		// set up index variables
     	double v = (2*(dir==REVERSE)-1) * 2 * cuPI / m;
-    	int i = tid/(m/2);
-   		int j = tid%(m/2);
-   	    int k = i*m + j;
-		printf("myid = %d, m = %d, i = %d, j = %d, k = %d\n",myId, m, i, j, k);
+    	int i = tid/m;	// which node am I in at level m/2 (counting from bottom)?
+   		int j = tid%m;	// which element am I within that node?
+   	    int k = i*m + j;	// what is my offset into sdata?
 
 		// compute value
 		thCdouble wj = thrust::polar(1.0, v*j);
-       	thCdouble t = sdata[k];
-   	    thCdouble u = wj*sdata[k+m/2];
-		printf("myId= %d: x[%d] = (%g, %g), x[%d+%d] = (%g, %g), wj = (%g, %g)\n", myId, k, t.real(), t.imag(), k, m/2, (sdata[k+m/2]).real(), (sdata[k+m/2]).imag(), wj.real(), wj.imag());
-
-        sdata[k] = t+u;
-        sdata[k+m/2] = t-u;
-		printf("myId= %d: NOW x[%d] = (%g, %g), x[%d+%d] = (%g, %g)\n", myId, k, sdata[k].real(), sdata[k].imag(), k, m/2, (sdata[k+m/2]).real(), (sdata[k+m/2]).imag());
+		
+		if(j<m/2)
+		{
+	       	t = sdata[k];
+   		    u = wj*sdata[k+m/2];
+		}
+		else
+		{
+       		t = sdata[k-m/2];
+	   	    u = wj*sdata[k];
+		}
         __syncthreads();
+		sdata[k] = t+u;
     }
 
     // write result
     x[myId] = sdata[tid];
-    x[myId+n/2] = sdata[tid+n/2];
 }
 
 
@@ -76,15 +90,12 @@ __global__ void fft_kernel_finish(thCdouble *x, int m, direction dir)
 	int i = myId/(m/2);
 	int j = myId%(m/2);
     int k = i*m + j;
-	printf("myid = %d, m = %d, i = %d, j = %d, k = %d\n",myId, m, i, j, k);
 
 
 	// compute value
 	thCdouble wj = thrust::polar(1.0, v*j);
    	thCdouble t = x[k];
     thCdouble u = wj*x[k+m/2];
-		printf("myId= %d: x[%d] = (%g, %g), x[%d+%d] = (%g, %g), wj = (%g, %g)\n", myId, k, t.real(), t.imag(), k, m/2, (x[k+m/2]).real(), (x[k+m/2]).imag(), wj.real(), wj.imag());
     x[k] = t+u;
     x[k+m/2] = t-u;
-		printf("myId= %d: NOW x[%d] = (%g, %g), x[%d+%d] = (%g, %g)\n", myId, k, x[k].real(), x[k].imag(), k, m/2, (x[k+m/2]).real(), (x[k+m/2]).imag());
 }
