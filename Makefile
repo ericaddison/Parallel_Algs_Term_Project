@@ -14,18 +14,14 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 all: $(OBJ)
 	$(CC) $(CC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o bin/a.out
 
-test: all
-	make -C test
-
-runTest: test
-	./test/bin/test.out
-
+cuda:
+	make -C cuda
 
 $(ODIR)/%.o: $(SDIR)/%.cpp
 	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(SDIR)/$*.cpp -c -o $@
 
 
 clean:
-	make -C test clean
+	make -C cuda clean
 	rm -f obj/*
 	rm -f bin/*
