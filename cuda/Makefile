@@ -16,12 +16,12 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ2))
 
 
 all: $(OBJ)
-	$(NVCC) $(NVCC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o bin/cudaFFT.out
+	$(NVCC) $(NVCC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o ../bin/cudaFFT.out
 
 $(ODIR)/%.o: $(SDIR)/%.cpp
 	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(SDIR)/$*.cpp -c -o $@
 
-$(ODIR)/%.o: $(SDIR)/%.cu 
+$(ODIR)/%.o: $(SDIR)/%.cu
 	$(NVCC) $(NVCC_FLAGS) $(INCLUDE_DIRS) $(SDIR)/$*.cu -c -o $@
 
 submit: all
