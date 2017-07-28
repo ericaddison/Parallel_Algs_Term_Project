@@ -40,43 +40,51 @@ __global__ void fft_kernel_shared(thCdouble *x, int n, direction dir)
     	int i = tid/(m/2);
    		int j = tid%(m/2);
    	    int k = i*m + j;
+		printf("myid = %d, m = %d, i = %d, j = %d, k = %d\n",myId, m, i, j, k);
 
 		// compute value
 		thCdouble wj = thrust::polar(1.0, v*j);
        	thCdouble t = sdata[k];
    	    thCdouble u = wj*sdata[k+m/2];
+		printf("myId= %d: x[%d] = (%g, %g), x[%d+%d] = (%g, %g), wj = (%g, %g)\n", myId, k, t.real(), t.imag(), k, m/2, (sdata[k+m/2]).real(), (sdata[k+m/2]).imag(), wj.real(), wj.imag());
+
         sdata[k] = t+u;
         sdata[k+m/2] = t-u;
+		printf("myId= %d: NOW x[%d] = (%g, %g), x[%d+%d] = (%g, %g)\n", myId, k, sdata[k].real(), sdata[k].imag(), k, m/2, (sdata[k+m/2]).real(), (sdata[k+m/2]).imag());
         __syncthreads();
     }
 
     // write result
-    x[myId] = sdata[threadIdx.x];
-    x[myId+n/2] = sdata[threadIdx.x+n/2];
+    x[myId] = sdata[tid];
+    x[myId+n/2] = sdata[tid+n/2];
 }
 
 
 // kernel to call after the shared memory kernel
 // has performed fft on blocks
 // this one will keep going, but working in global memory
-__global__ void fft_kernel_finish(thCdouble *x, int n, direction dir)
+// at this point in the computation, each block holds a complete fft
+// of the elements it started with. Need to continue fft merging those
+// elements until all done
+__global__ void fft_kernel_finish(thCdouble *x, int m, direction dir)
 {
     int myId = threadIdx.x + blockIdx.x * blockDim.x;
+	int offset = blockIdx.x * blockDim.x;
 
-    for(int m=2; m <= n; m<<=1)
-    {
-		// set up index variables
-    	double v = (2*(dir==REVERSE)-1) * 2 * cuPI / m;
-    	int i = myId/(m/2);
-   		int j = myId%(m/2);
-   	    int k = i*m + j;
+	// set up index variables
+	double v = (2*(dir==REVERSE)-1) * 2 * cuPI / m;
+	int i = myId/(m/2);
+	int j = myId%(m/2);
+    int k = i*m + j;
+	printf("myid = %d, m = %d, i = %d, j = %d, k = %d\n",myId, m, i, j, k);
 
-		// compute value
-		thCdouble wj = thrust::polar(1.0, v*j);
-       	thCdouble t = x[k];
-   	    thCdouble u = wj*x[k+m/2];
-        x[k] = t+u;
-        x[k+m/2] = t-u;
-        __syncthreads();
-    }
+
+	// compute value
+	thCdouble wj = thrust::polar(1.0, v*j);
+   	thCdouble t = x[k];
+    thCdouble u = wj*x[k+m/2];
+		printf("myId= %d: x[%d] = (%g, %g), x[%d+%d] = (%g, %g), wj = (%g, %g)\n", myId, k, t.real(), t.imag(), k, m/2, (x[k+m/2]).real(), (x[k+m/2]).imag(), wj.real(), wj.imag());
+    x[k] = t+u;
+    x[k+m/2] = t-u;
+		printf("myId= %d: NOW x[%d] = (%g, %g), x[%d+%d] = (%g, %g)\n", myId, k, x[k].real(), x[k].imag(), k, m/2, (x[k+m/2]).real(), (x[k+m/2]).imag());
 }
