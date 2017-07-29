@@ -2,6 +2,11 @@ import numpy as np
 import time
 import sys
 
+filename = sys.argv[1]
+outputResult = True
+if len(sys.argv)==3:
+	outputResult = (sys.argv[2]=='y')
+
 # step 0: write current algorithm to stdout
 print "Python: numpy.fft.fft()"
 
@@ -12,8 +17,7 @@ print "Python: numpy.fft.fft()"
 #              value 2
 #              ...
 
-y = np.fromfile(sys.argv[-1],dtype=float, sep='\n')[1:]
-
+y = np.fromfile(filename,dtype=float, sep='\n')[1:]
 
 # step 2: perform fft with timing in microseconds
 t0 = time.time()
@@ -26,5 +30,6 @@ print "elapsed time (microseconds):", (t1-t0)*1000000
 
 
 # step 4: write result to stdout with format real, imag\n
-for i in range(y.size):
-    print y[i].real, ",", y[i].imag
+if outputResult:
+	for i in range(y.size):
+		print y[i].real, ",", y[i].imag

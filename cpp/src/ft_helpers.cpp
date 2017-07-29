@@ -43,3 +43,19 @@ void bitReverse(carray& x)
 }
 
 
+
+std::vector<double> readFile(string filename)
+{
+	ifstream infile(filename.c_str());
+
+	// read number of elements
+	int N;
+	infile >> N;
+
+	// allocate data and read
+	std::vector<double> data(N);
+	for(int i=0; i<N; i++)
+		infile >> data[i];
+
+	return data;
+}
