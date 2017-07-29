@@ -3,7 +3,7 @@ NVCC = nvcc
 CC_FLAGS = -std=c++14
 NVCC_FLAGS = -arch=compute_35 -code=sm_35
 LIBS = -lm
-INCLUDE_DIRS = -I../src
+INCLUDE_DIRS = -I../cpp/src
 LIB_DIRS =
 
 ODIR = obj
@@ -16,7 +16,7 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ2))
 
 
 all: $(OBJ)
-	$(NVCC) $(NVCC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o ../bin/cudaFFT.out
+	$(NVCC) $(NVCC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o bin/fft_cuda.out
 
 $(ODIR)/%.o: $(SDIR)/%.cpp
 	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(SDIR)/$*.cpp -c -o $@
