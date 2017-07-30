@@ -3,12 +3,16 @@
 
 #include <complex>
 #include <cmath>
+#include <vector>
 #include <valarray>
 #include <iostream>
+#include <fstream>
+#include <string>
 
 using std::complex;
-using namespace std::literals::complex_literals;
-typedef std::valarray<complex<double>> carray;
+using std::string;
+using std::ifstream;
+typedef std::valarray< complex<double> > carray;
 typedef complex<double> cdouble;
 
 enum direction { FORWARD, REVERSE };
@@ -18,5 +22,6 @@ bool isPow2(int n);
 void checkSize(int n);
 int bitReverse(unsigned int b, int d);
 void bitReverse(carray& x);
+std::vector<double> readFile(string filename);
 
 #endif

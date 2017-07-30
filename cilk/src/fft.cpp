@@ -52,7 +52,7 @@ void cilk_transform_iter(carray& x, direction dir)
     cdouble w = std::polar(1.0, v);
 
     // do s groups of m elements
-    for(int i=0; i<s; i++)
+    cilk_for(int i=0; i<s; i++)
     {
       cdouble wj = 1;
       cilk_for(int j=0; j<m/2; j++)
