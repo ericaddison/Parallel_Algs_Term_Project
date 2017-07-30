@@ -6,26 +6,34 @@ LIB_DIRS =
 
 ODIR = obj
 SDIR = src
-_SRC = main.cpp dft.cpp fft.cpp ft_helpers.cpp
-SRC = $(patsubst %,$(SDIR)/%,$(_SRC))
-_OBJ = $(_SRC:.cpp=.o)
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-all: $(OBJ)
-	$(CC) $(CC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o bin/a.out
+_CILK_FFT_REC_SRC = main_cilk_recursive.cpp fft.cpp
+_CILK_FFT_ITER_SRC = main_cilk_iterative.cpp fft.cpp
+_COMMON_SRC = ft_helpers.cpp
+_CILK_FFT_REC_OBJ = $(_CILK_FFT_REC_SRC:.cpp=.o)
+_CILK_FFT_ITER_OBJ = $(_CILK_FFT_ITER_SRC:.cpp=.o)
+_COMMON_OBJ = $(_COMMON_SRC:.cpp=.o)
 
-test: all
-	make -C test
+CILK_FFT_REC_SRC = $(patsubst %,$(SDIR)/%,$(_CILK_FFT_REC_SRC))
+CILK_FFT_ITER_SRC = $(patsubst %,$(SDIR)/%,$(_CILK_FFT_ITER_SRC))
+COMMON_SRC = $(patsubst %,$(SDIR)/%,$(_COMMON_SRC))
 
-runTest: test
-	./test/bin/test.out
+CILK_FFT_REC_OBJ = $(patsubst %,$(ODIR)/%,$(_CILK_FFT_REC_OBJ))
+CILK_FFT_ITER_OBJ = $(patsubst %,$(ODIR)/%,$(_CILK_FFT_ITER_OBJ))
+COMMON_OBJ = $(patsubst %,$(ODIR)/%,$(_COMMON_OBJ))
 
+
+all:  cilk_fft_rec cilk_fft_iter
+
+cilk_fft_rec: $(COMMON_OBJ) $(CILK_FFT_REC_OBJ)
+	$(CC) $(CC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o bin/fft_rec_cilk.out
+
+cilk_fft_iter: $(COMMON_OBJ) $(CILK_FFT_ITER_OBJ)
+	$(CC) $(CC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o bin/fft_iter_cilk.out
 
 $(ODIR)/%.o: $(SDIR)/%.cpp
 	$(CC) $(CC_FLAGS) $(INCLUDE_DIRS) $(SDIR)/$*.cpp -c -o $@
 
-
 clean:
-	make -C test clean
 	rm -f obj/*
 	rm -f bin/*
