@@ -37,13 +37,13 @@ int main(int argc, char** argv)
 
 // step 2: perform fft with timing in microseconds
 	auto t1 = high_resolution_clock::now();
-  	fft_cuda(h_A, n);
+  	float innerTime = fft_cuda(h_A, n);
 	auto t2 = high_resolution_clock::now();
 	long time = duration_cast<microseconds>(t2-t1).count();
 
 
 // step 3: write elapsed time (microseconds) to stdout
-	cout << "elapsed time (microseconds): " << time << endl;
+	cout << "elapsed time (microseconds): " << time << " / " << innerTime*1000 << endl;
 
 // step 4: write result to stdout with format real, imag\n
 	if(resultOutput)

@@ -3,7 +3,7 @@
 INFILE="./inp.txt"
 OUTPUT="y"
 
-for n in {2..15}
+for n in {13..21}
 do
 
 echo "Generating new input file for n = $n"
@@ -16,13 +16,13 @@ head -n 2 numpy_result
 #echo "Running sequential dft"
 #../cpp/bin/dft_seq.out ${INFILE} ${OUTPUT} > dtfResult
 
-echo "  Running sequential recursive fft"
-../cpp/bin/fft_rec_seq.out ${INFILE} ${OUTPUT} > fft_rec_result
-head -n 2 fft_rec_result
+#echo "  Running sequential recursive fft"
+#../cpp/bin/fft_rec_seq.out ${INFILE} ${OUTPUT} > fft_rec_result
+#head -n 2 fft_rec_result
 
-echo "  Running sequential iterative fft"
-../cpp/bin/fft_iter_seq.out ${INFILE} ${OUTPUT} > fft_iter_result
-head -n 2 fft_iter_result
+#echo "  Running sequential iterative fft"
+#../cpp/bin/fft_iter_seq.out ${INFILE} ${OUTPUT} > fft_iter_result
+#head -n 2 fft_iter_result
 
 echo "  Running cuda fft"
 ../cuda/bin/fft_cuda.out ${INFILE} ${OUTPUT} > fft_cuda_result
