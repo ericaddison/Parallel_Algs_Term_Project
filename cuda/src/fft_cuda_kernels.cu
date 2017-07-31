@@ -1,5 +1,7 @@
-#include "cuda_fft.h"
+#include "fft_cuda.h"
+#include "fft_cuda_kernels.h"
 #include <stdio.h>
+
 
 __device__ int d_bitReverse(unsigned int b, int d)
 {
@@ -74,6 +76,7 @@ __global__ void fft_kernel_shared(thCdouble *x, int n, direction dir)
 }
 
 
+
 // kernel to call after the shared memory kernel
 // has performed fft on blocks
 // this one will keep going, but working in global memory
@@ -83,14 +86,12 @@ __global__ void fft_kernel_shared(thCdouble *x, int n, direction dir)
 __global__ void fft_kernel_finish(thCdouble *x, int m, direction dir)
 {
     int myId = threadIdx.x + blockIdx.x * blockDim.x;
-	int offset = blockIdx.x * blockDim.x;
 
 	// set up index variables
 	double v = (2*(dir==REVERSE)-1) * 2 * cuPI / m;
 	int i = myId/(m/2);
 	int j = myId%(m/2);
     int k = i*m + j;
-
 
 	// compute value
 	thCdouble wj = thrust::polar(1.0, v*j);
@@ -99,3 +100,4 @@ __global__ void fft_kernel_finish(thCdouble *x, int m, direction dir)
     x[k] = t+u;
     x[k+m/2] = t-u;
 }
+

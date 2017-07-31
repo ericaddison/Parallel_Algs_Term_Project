@@ -1,9 +1,7 @@
+#include "fft_cuda.h"
 #include <iostream>
-#include <complex>
-#include <cmath>
-#include <vector>
+#include <stdlib.h>
 #include <chrono>
-#include "fft_recursive.h"
 
 using std::cout;
 using std::endl;
@@ -11,13 +9,14 @@ using std::chrono::duration_cast;
 using std::chrono::microseconds;
 using std::chrono::high_resolution_clock;
 
-// sequential recursive fft program
 
-int main(int argc, char ** argv)
+
+int main(int argc, char** argv)
 {
+// handle input args
 	if(argc < 2)
 	{
-		cout << "\nUSAGE: " << argv[0] << " input_file\n\n";
+		cout << "\nUSAGE: " << argv[0] << " input_file [result output y/n]\n\n";
 		return 1;
 	}
 	bool resultOutput = true;
@@ -25,21 +24,20 @@ int main(int argc, char ** argv)
 		resultOutput = (*argv[2] == 'y');
 
 // step 0: write current algorithm to stdout
-  cout << "C++: fft_recursive()" << endl;
+  cout << "Cuda fft()" << endl;
 
 // step 1: read input from command line arg
 	string filename = argv[1];
 	std::vector<double> data = readFile(filename);
 
 	int n = data.size();
-	carray x(n);
+	thCdouble *h_A = new thCdouble[n];
 	for(int i=0; i<n; i++)
-		x[i] = data[i];	
-
+		h_A[i] = data[i];	
 
 // step 2: perform fft with timing in microseconds
 	auto t1 = high_resolution_clock::now();
-  	fft(x);
+  	fft_cuda(h_A, n);
 	auto t2 = high_resolution_clock::now();
 	long time = duration_cast<microseconds>(t2-t1).count();
 
@@ -49,8 +47,9 @@ int main(int argc, char ** argv)
 
 // step 4: write result to stdout with format real, imag\n
 	if(resultOutput)
-	  for(int i=0; i<n; i++)
-	    cout << x[i].real() << ", " << x[i].imag() << endl;
+		for(int i=0; i<n; i++)
+    		cout << h_A[i].real() << ", " << h_A[i].imag() << endl;
 
-  return 0;
+
+	return 0;
 }

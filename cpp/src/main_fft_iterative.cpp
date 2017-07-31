@@ -11,7 +11,7 @@ using std::chrono::duration_cast;
 using std::chrono::microseconds;
 using std::chrono::high_resolution_clock;
 
-// dft program
+// sequential iterative fft program
 
 int main(int argc, char ** argv)
 {

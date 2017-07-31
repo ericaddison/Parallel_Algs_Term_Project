@@ -1,11 +1,9 @@
-#include "cuda_fft.h"
-#include <iostream>
-#include <stdlib.h>
-using std::cout;
-using std::endl;
+#include "fft_cuda.h"
+#include "fft_cuda_kernels.h"
+#include <stdio.h>
 
 
-void fft_cuda(thCdouble* h_A, int n, direction dir)
+void fft_cuda_transform(thCdouble* h_A, int n, direction dir)
 {
 	// define device data
 	thCdouble *d_A;
@@ -24,14 +22,12 @@ void fft_cuda(thCdouble* h_A, int n, direction dir)
     cudaThreadSynchronize();
     fft_kernel_shared<<<nBlocks,threadsPerBlock,threadsPerBlock*sizeof(thCdouble)>>>(d_A, n, dir);
     cudaThreadSynchronize();
-	cout << endl;
 
 	// continue FFT in global memory
 
 	if(nBlocks>1)
 		for(int m=2*MAX_THREADS; m<=n; m<<=1)
 		{
-			cout << "Going again with m = " << m << endl;
 			fft_kernel_finish<<<nBlocks, threadsPerBlock>>>(d_A, m, dir);
 			cudaThreadSynchronize();
 		}
@@ -47,33 +43,16 @@ void fft_cuda(thCdouble* h_A, int n, direction dir)
 
 void fft_cuda(thCdouble* h_A, int n)
 {
-	fft_cuda(h_A, n, FORWARD);
+	fft_cuda_transform(h_A, n, FORWARD);
 }
 
 
 
 void ifft_cuda(thCdouble* h_A, int n)
 {
-	fft_cuda(h_A, n, REVERSE);
+	fft_cuda_transform(h_A, n, REVERSE);
 }
 
 
-int main(int argc, char** argv)
-{
-	// define host data
-	int ex = atoi(argv[1]);
-	int n = 1<<ex;
-	thCdouble *h_A = new thCdouble[n];
-	for(int i=0; i<n; i++)
-		h_A[i] = i+1;	
 
-	// call fft
-	fft_cuda(h_A, n);
 
-	// print result
-//	for(int i=0; i<n; i++)
-//		cout << h_A[i] << endl;
-
-	// memory cleanup
-	delete[] h_A;
-}

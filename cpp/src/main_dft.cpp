@@ -15,6 +15,7 @@ using std::chrono::high_resolution_clock;
 
 int main(int argc, char ** argv)
 {
+// handle input args
 	if(argc < 2)
 	{
 		cout << "\nUSAGE: " << argv[0] << " input_file [result output y/n]\n\n";

@@ -1,17 +1,10 @@
-#ifndef _CUDA_FFT_
-#define _CUDA_FFT_
+#ifndef _CUDA_FFT_KERNELS_
+#define _CUDA_FFT_KERNELS_
 
 #include <cuda_runtime.h>
-#include <thrust/complex.h>
-#include "ft_helpers.h"
+#include "fft_cuda.h"
 
-#define MIN(x,y) ((x<y)?x:y)
-#define MAX(x,y) ((x>y)?x:y)
-#define cuPI 3.14159265359
-#define MAX_THREADS 1024
-
-typedef thrust::complex<double> thCdouble;
-
+// CUDA kernels
 __global__ void fft_kernel_shared(thCdouble *x, int n, direction dir);
 __global__ void fft_kernel_finish(thCdouble *x, int n, direction dir);
 __global__ void bit_reverse_kernel(thCdouble *out, thCdouble *in, int n);

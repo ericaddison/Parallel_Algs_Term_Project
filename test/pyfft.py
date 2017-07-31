@@ -17,7 +17,7 @@ print "Python: numpy.fft.fft()"
 #              value 2
 #              ...
 
-y = np.fromfile(filename,dtype=float, sep='\n')[1:]
+y = np.loadtxt(filename,dtype=float,skiprows=1,delimiter='\n')
 
 # step 2: perform fft with timing in microseconds
 t0 = time.time()
