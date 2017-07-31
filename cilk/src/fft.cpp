@@ -1,6 +1,7 @@
 #include "fft.h"
 #include <cilk/cilk.h>
 #include <iostream>
+#include <assert.h>
 
 #define MAX_LINEAR 128
 
@@ -10,8 +11,9 @@ void transform(carray& x, direction dir);
 void cilk_transform(carray& x, direction dir);
 void transform_iter(carray& x, direction dir);
 void cilk_transform_iter(carray& x, direction dir);
-void combine(carray& x, size_t N, direction dir, carray& E, carray& O);
-void cilk_combine(carray& x, size_t N, direction dir, carray& E, carray& O);
+void combine(carray& x, size_t N, size_t start, size_t size, direction dir, carray& E, carray& O);
+void cilky_combine(carray& x, size_t N, size_t start, size_t size, direction dir, carray& E, carray& O);
+void cilk_combine(carray& x, size_t N, size_t start, size_t size, direction dir, carray& E, carray& O);
 
 void cilk_fft(carray& x)
 {
@@ -55,7 +57,7 @@ void cilk_transform_iter(carray& x, direction dir)
     cilk_for(int i=0; i<s; i++)
     {
       cdouble wj = 1;
-      cilk_for(int j=0; j<m/2; j++)
+      for(int j=0; j<m/2; j++)
       {
         int k = i*m + j;
         cdouble t = x[k];
@@ -114,16 +116,28 @@ void transform(carray& x, direction dir)
     transform(O, dir);
 
     // combine
-    combine(x, N, dir, E, O);
+    combine(x, N, 0, N/2, dir, E, O);
 }
 
 const size_t cilk_max_recombine = MAX_LINEAR;
 
-void combine(carray& x, size_t N, direction dir, carray& E, carray& O)
+void combine(carray& x, size_t N, size_t start, size_t size, direction dir, carray& E, carray& O)
 {
     // combine
     double v = (2*(dir==REVERSE)-1) * 2 * PI / N;
-    for (size_t k = 0; k < N/2; ++k)
+    for (size_t k = start; k < start+size; ++k)
+    {
+        cdouble t = std::polar(1.0, v * k) * O[k];
+        x[k] = E[k] + t;
+        x[k+N/2] = E[k] - t;
+    }
+}
+
+void cilky_combine(carray& x, size_t N, size_t start, size_t size, direction dir, carray& E, carray& O)
+{
+    // combine
+    double v = (2*(dir==REVERSE)-1) * 2 * PI / N;
+    cilk_for (size_t k = start; k < start+size; ++k)
     {
         cdouble t = std::polar(1.0, v * k) * O[k];
         x[k] = E[k] + t;
@@ -131,16 +145,18 @@ void combine(carray& x, size_t N, direction dir, carray& E, carray& O)
     }
 } 
 
-void cilk_combine(carray& x, size_t N, direction dir, carray& E, carray& O)
+void cilk_combine(carray& x, size_t N, size_t start, size_t size, direction dir, carray& E, carray& O)
 {
-    if (N <= cilk_max_recombine) {
+    assert (size >= 1);
+    if (size <= cilk_max_recombine) {
       // combine
-      combine(x, N, dir, E, O);
+      cilky_combine(x, N, start, size, dir, E, O);
     } else {
-          carray small = x[std::slice(0, N/2, 1)];
-          carray large = x[std::slice(N/2, N/2, 1)];
-          cilk_spawn cilk_combine(small, N/2, dir, E, O);
-          cilk_spawn cilk_combine(large, N/2, dir, E, O);
+          //carray small = x[std::slice(0, N/2, 1)];
+          //carray large = x[std::slice(N/2, N/2, 1)];
+          
+          cilk_spawn cilk_combine(x, N, start       , size/2, dir, E, O);
+          cilk_spawn cilk_combine(x, N, start+size/2, size/2, dir, E, O);
           cilk_sync;
     }
 } 
@@ -155,14 +171,15 @@ void cilk_transform(carray& x, direction dir)
 
     // even side recursive call
     carray E = x[std::slice(0, N/2, 2)];
-    cilk_spawn transform(E, dir);
+    cilk_spawn cilk_transform(E, dir);
 
     // odd side recursive call
     carray O = x[std::slice(1, N/2, 2)];
-    cilk_spawn transform(O, dir);
+    cilk_spawn cilk_transform(O, dir);
 
     cilk_sync;
 
     // combine
-    combine(x, N, dir, E, O);
+    cilk_combine(x, N, 0, N/2, dir, E, O);
+    //combine(x, N, dir, E, O);
 }
