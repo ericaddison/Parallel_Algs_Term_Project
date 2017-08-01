@@ -56,7 +56,7 @@ int main( int argc, char *argv[] )
   cilk_fft(cilk_y);
   unsigned long long stop_c  = cilk_getticks();
   unsigned long long ticks_c = stop_c - start_c;
-  std::cout << "recursive cilk fft: " << cilk_ticks_to_seconds(ticks_c)*1000 << std::endl;
+  //std::cout << "recursive cilk fft: " << cilk_ticks_to_seconds(ticks_c)*1000 << std::endl;
 /*}}}*/
   // sequential recursive FFT (cooley-tukey) /*{{{*/
   carray y(n);
@@ -67,7 +67,7 @@ int main( int argc, char *argv[] )
   fft(y);
   unsigned long long stop_s  = cilk_getticks();
   unsigned long long ticks_s = stop_s - start_s;
-  std::cout << "non_cilk recursive fft: " << cilk_ticks_to_seconds(ticks_s)*1000 << std::endl;
+  //std::cout << "non_cilk recursive fft: " << cilk_ticks_to_seconds(ticks_s)*1000 << std::endl;
 /*}}}*/
   // cilk iterative FFT (cooley-tukey) /*{{{*/
   carray cilk_iter_y(n);
@@ -78,7 +78,7 @@ int main( int argc, char *argv[] )
   cilk_iter_fft(cilk_iter_y);
   unsigned long long stop_cilk_iter  = cilk_getticks();
   unsigned long long ticks_cilk_iter = stop_cilk_iter - start_cilk_iter;
-  std::cout << "cilk iter fft: " << cilk_ticks_to_seconds(ticks_cilk_iter)*1000 << std::endl;
+  //std::cout << "cilk iter fft: " << cilk_ticks_to_seconds(ticks_cilk_iter)*1000 << std::endl;
 /*}}}*/
   // sequential iterative FFT (cooley-tukey) /*{{{*/
   carray iter_y(n);
@@ -89,9 +89,9 @@ int main( int argc, char *argv[] )
   iter_fft(iter_y);
   unsigned long long stop_s_iter  = cilk_getticks();
   unsigned long long ticks_s_iter = stop_s_iter - start_s_iter;
-  std::cout << "non_cilk iter fft: " << cilk_ticks_to_seconds(ticks_s_iter)*1000 << std::endl;
+  //std::cout << "non_cilk iter fft: " << cilk_ticks_to_seconds(ticks_s_iter)*1000 << std::endl;
 /*}}}*/
-  std::cout << ": " << cilk_ticks_to_seconds(ticks_c)*1000 << ","
+  std::cout << n << ", " << cilk_ticks_to_seconds(ticks_c)*1000 << ","
                     << cilk_ticks_to_seconds(ticks_s)*1000 << ","
                     << cilk_ticks_to_seconds(ticks_cilk_iter)*1000 << ","
                     << cilk_ticks_to_seconds(ticks_s_iter)*1000 << std::endl;

@@ -5,8 +5,7 @@ X=1
 
 while [ $X -le 10000000 ]
 do
-  echo "Running with ${X} elements"
-  /home/ari/Documents/UT_SWE/Parallel_Algorithms/Term_Project/cilk/bin/a.out $X
+  ./bin/fft_mine_cilk.out $X
   X=$[$X*2]
 done
 echo "Finished testing"
