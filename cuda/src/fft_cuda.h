@@ -15,5 +15,6 @@ typedef thrust::complex<double> thCdouble;
 float fft_cuda_transform(thCdouble* h_A, int n, direction dir);
 float fft_cuda(thCdouble* h_A, int n);
 float ifft_cuda(thCdouble* h_A, int n);
+float fft_cufft(double *d, int n);
 
 #endif

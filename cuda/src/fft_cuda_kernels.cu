@@ -6,7 +6,7 @@
 __device__ int d_bitReverse(unsigned int b, int d)
 {
     b = (((b & 0xaaaaaaaa) >> 1) | ((b & 0x55555555) << 1));
-		b = (((b & 0xcccccccc) >> 2) | ((b & 0x33333333) << 2));
+	b = (((b & 0xcccccccc) >> 2) | ((b & 0x33333333) << 2));
     b = (((b & 0xf0f0f0f0) >> 4) | ((b & 0x0f0f0f0f) << 4));
     b = (((b & 0xff00ff00) >> 8) | ((b & 0x00ff00ff) << 8));
     b = ((b >> 16) | (b << 16));
@@ -20,11 +20,10 @@ __global__ void bit_reverse_kernel(thCdouble *out, thCdouble *in, int n)
 	int tid = threadIdx.x;
 	int offset = blockIdx.x * blockDim.x;
     int myId = tid + offset;
-    int d = log2f(n);
+    int d = roundf(log2f(n));
 	n = MIN(n, MAX_THREADS);
 	out[ myId ] = in[ d_bitReverse(myId, d) ];
 }
-
 
 
 // iterative FFT with shared memory
