@@ -15,6 +15,6 @@ print n
 random.seed()
 for i in range(n):
 	nextNum = 200*random.random()-100
-	print i+1#nextNum
+	print nextNum
 
 
