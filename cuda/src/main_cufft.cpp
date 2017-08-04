@@ -38,6 +38,7 @@ int main(int argc, char** argv)
 		h_A[2*i] = data[i];	
 
 // step 2: perform fft with timing in microseconds
+	cuda_init();
 	auto t1 = high_resolution_clock::now();
   	float innerTime = fft_cufft(h_A, n);
 	auto t2 = high_resolution_clock::now();

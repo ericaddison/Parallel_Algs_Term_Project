@@ -48,26 +48,17 @@ __global__ void fft_kernel_shared(thCdouble *x, int n, direction dir)
     for(int m=2; m <= n; m<<=1)
     {
     // set up index variables
-	double v = (2*(dir==REVERSE)-1) * 2 * cuPI / m;
-    	int i = tid/m;	// which node am I in at level m/2 (counting from bottom)?
-   	int j = tid%m;	// which element am I within that node?
-   	int k = i*m + j;	// what is my offset into sdata?
+        double v = (2*(dir==REVERSE)-1) * 2 * cuPI / m;
+        int i = tid/m;    // which node am I in at level m/2 (counting from bottom)?
+       int j = tid%m;    // which element am I within that node?
+       int k = i*m + j;    // what is my offset into sdata?
 
         // compute value
-	thCdouble wj = thrust::polar(1.0, v*j);
-		
-	if(j<m/2)
-	{
-	    t = sdata[k];
-            u = wj*sdata[k+m/2];
-        }
-	else
-	{
-       	    t = sdata[k-m/2];
-	    u = wj*sdata[k];
-	}
+        thCdouble wj = thrust::polar(1.0, v*j);
+        t = (j<m/2) ? sdata[k] : sdata[k-m/2];
+        u = (j<m/2) ? wj*sdata[k+m/2] : wj*sdata[k];
         __syncthreads();
-	sdata[k] = t+u;
+        sdata[k] = t+u;
     }
 
     // write result

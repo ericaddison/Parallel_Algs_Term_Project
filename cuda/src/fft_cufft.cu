@@ -1,6 +1,12 @@
 #include "fft_cuda.h"
 #include <cufft.h>
 
+void cuda_init()
+{
+	cudaFree(0);
+	return;
+}
+
 float fft_cufft(double *h_A, int n)
 {
 
