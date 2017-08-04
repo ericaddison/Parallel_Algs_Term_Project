@@ -50,61 +50,53 @@ xlabel('Array Size n')
 set(gca,'ygrid','on','GridLineStyle','-')
 set(gcf, 'PaperUnits', 'points');
 set(gcf, 'PaperPosition', [100, 100, 500, 250]);
-saveas(gcf,['./cilkRuntimes'],'epsc');
-
+saveas(gcf,['./fft_cilk_cpp'],'epsc');
+%{
 %% figure 2
-plot(n,(noncilk_rec),'-s','MarkerSize',2,'LineWidth',2)
+plot(n,(cilk_rec_basecase_1),'-s','MarkerSize',2,'LineWidth',2)
 hold on
-plot(n,(cilk_rec_basecase_1),'-sr','MarkerSize',2,'LineWidth',2)
-plot(n,(cilk_rec_basecase_128),'-sg','MarkerSize',2,'LineWidth',2)
-plot(n,(noncilk_iter),'-sk','MarkerSize',2,'LineWidth',2)
-plot(n,(cilk_iter),'-sm','MarkerSize',2,'LineWidth',2)
-l = legend('non-cilk recursive','cilk recursive basecase=1', 'cilk recursive basecase=128','non-cilk iterative', 'cilk iterative')
+plot(n,(cilk_rec_basecase_128),'-sr','MarkerSize',2,'LineWidth',2)
+l = legend('cilk recursive basecase=1', 'cilk recursive basecase=128')
 set(l,...
     'Position',[0.16064453125 0.660807291666667 0.4228515625 0.21484375]);
 
-title('FFT: cilk vs CPP')
+title('Recursive FFT in cilk: cilk_max_recombine 1 vs 128')
 ylabel('Time (seconds)')
 xlabel('Array Size n')
 set(gca,'ygrid','on','GridLineStyle','-')
 set(gcf, 'PaperUnits', 'points');
 set(gcf, 'PaperPosition', [100, 100, 500, 250]);
-saveas(gcf,['./cilkRuntimes'],'epsc');
+saveas(gcf,['./cilk_max_recombine'],'epsc');
 
 %% figure 3
 plot(n,(noncilk_rec),'-s','MarkerSize',2,'LineWidth',2)
 hold on
-plot(n,(cilk_rec_basecase_1),'-sr','MarkerSize',2,'LineWidth',2)
-plot(n,(cilk_rec_basecase_128),'-sg','MarkerSize',2,'LineWidth',2)
-plot(n,(noncilk_iter),'-sk','MarkerSize',2,'LineWidth',2)
-plot(n,(cilk_iter),'-sm','MarkerSize',2,'LineWidth',2)
-l = legend('non-cilk recursive','cilk recursive basecase=1', 'cilk recursive basecase=128','non-cilk iterative', 'cilk iterative')
+plot(n,(noncilk_iter),'-sr','MarkerSize',2,'LineWidth',2)
+l = legend('non-cilk recursive','non-cilk iterative')
 set(l,...
     'Position',[0.16064453125 0.660807291666667 0.4228515625 0.21484375]);
 
-title('FFT: cilk vs CPP')
+title('Iterative vs Recursive non-cilk FFT')
 ylabel('Time (seconds)')
 xlabel('Array Size n')
 set(gca,'ygrid','on','GridLineStyle','-')
 set(gcf, 'PaperUnits', 'points');
 set(gcf, 'PaperPosition', [100, 100, 500, 250]);
-saveas(gcf,['./fft_cilk_cpp'],'epsc');
+saveas(gcf,['./iterative_recursive_non_cilk'],'epsc');
 
 %% figure 4
-plot(n,(noncilk_rec),'-s','MarkerSize',2,'LineWidth',2)
+plot(n,(noncilk_iter),'-s','MarkerSize',2,'LineWidth',2)
 hold on
-plot(n,(cilk_rec_basecase_1),'-sr','MarkerSize',2,'LineWidth',2)
-plot(n,(cilk_rec_basecase_128),'-sg','MarkerSize',2,'LineWidth',2)
-plot(n,(noncilk_iter),'-sk','MarkerSize',2,'LineWidth',2)
-plot(n,(cilk_iter),'-sm','MarkerSize',2,'LineWidth',2)
-l = legend('non-cilk recursive','cilk recursive basecase=1', 'cilk recursive basecase=128','non-cilk iterative', 'cilk iterative')
+plot(n,(cilk_iter),'-sr','MarkerSize',2,'LineWidth',2)
+l = legend('non-cilk iterative', 'cilk iterative')
 set(l,...
     'Position',[0.16064453125 0.660807291666667 0.4228515625 0.21484375]);
 
-title('FFT: cilk vs CPP')
+title('Iterative cilk vs Iterative non-cilk FFT')
 ylabel('Time (seconds)')
 xlabel('Array Size n')
 set(gca,'ygrid','on','GridLineStyle','-')
 set(gcf, 'PaperUnits', 'points');
 set(gcf, 'PaperPosition', [100, 100, 500, 250]);
-saveas(gcf,['./cilkRuntimes'],'epsc');
+saveas(gcf,['./iterative_fft'],'epsc');
+%}
