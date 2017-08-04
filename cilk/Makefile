@@ -1,5 +1,5 @@
-CC = g++
-CC_FLAGS = -std=c++14 -lcilkrts -fcilkplus -ldl
+CC = icc
+CC_FLAGS = -std=c++14 -ldl
 LIBS = -lm
 INCLUDE_DIRS =
 LIB_DIRS =
@@ -28,7 +28,7 @@ CILK_FFT_MINE_OBJ = $(patsubst %,$(ODIR)/%,$(_CILK_FFT_MINE_OBJ))
 COMMON_OBJ = $(patsubst %,$(ODIR)/%,$(_COMMON_OBJ))
 
 
-all:  cilk_fft_rec cilk_fft_iter cilk_fft_mine
+all:  cilk_fft_rec cilk_fft_iter
 
 cilk_fft_rec: $(COMMON_OBJ) $(CILK_FFT_REC_OBJ)
 	$(CC) $(CC_FLAGS) $^ $(LIB_DIRS) $(LIBS) -o bin/fft_rec_cilk.out
