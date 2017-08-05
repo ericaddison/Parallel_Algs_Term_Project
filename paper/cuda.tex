@@ -2,7 +2,7 @@ See appendix \ref{cudaAppendix} for a review of the Cuda parallel processing fra
 \subsection{Cuda Implementation: Iterative}
 The iterative form of the FFT algorithm is well suited for execution on a GPU. The strategy will be to treat each executing thread as single entry in the array. That is, each thread is responsible for computing the FFT value of the array location given by its global index. 
 
-Three kernels are used to perform this task: \texttt{bit\_reverse\_kernel()}, \texttt{fft\_kernel\_shared}, and \texttt{fft\_kernel\_finish()}. The sequence of execution in the FFT computation goes like this:
+Three kernels are used to perform this task: \texttt{bit\_reverse\_kernel()}, \texttt{fft\_kernel\_shared()}, and \texttt{fft\_kernel\_finish()}. The sequence of execution in the FFT computation goes like this:
 \begin{itemize}
     \item Load input data from CPU to GPU
     \item call \texttt{bit\_reverse\_kernel()} to perform array index bit-reversal in global memory
@@ -13,7 +13,7 @@ Three kernels are used to perform this task: \texttt{bit\_reverse\_kernel()}, \t
 
 This implementation computes all the partial FFTs in shared memory. That is, due to the thread block-size restriction of 1024 threads, this approach was not able to continue with shared memory after the FFT 1024-point FFT has been performed. The limitations were that thread synchronization during kernel execution is limited to the threads within a block, and that threads from neighboring blocks cannot access each other's shared memory.
 
-After the shared memory computation has finished, the CPU code loops over the \texttt{fft\_kernel\_finish()} kernel, which performs one iteration of the iterative FFT loop. This was thought to be necessary so that global device synchronization could be achieved. Otherwise, since the FFT algorithm now needs to reach beyond the limits of thread-block size to continue ($m/2 > 512$), there is the potential to introduce race a condition as each block proceeds out of sync with the others. 
+After the shared memory computation has finished, the CPU code loops over the \texttt{fft\_kernel\_finish()} kernel, which performs one iteration of the iterative FFT loop. This was thought to be necessary so that global device synchronization could be achieved. Otherwise, since the FFT algorithm now needs to reach beyond the limits of thread-block size to continue ($m/2 > 512$), there is the potential to introduce a race condition as each block proceeds out of sync with the others. 
 
 We implemented only the iterative FFT in cuda due to the natural programming style of GPU computations: GPUs are not ideally suited for recursive tasks. However, it is now possible to launch new grids of threads from an executing grid, where previously new grids (kernels) could only be launched from the CPU. This technique is know as Dynamic Parallelism, and enables recursive programming on the GPU. We did not explore this option, but felt it is important to mention.
 

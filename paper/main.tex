@@ -24,7 +24,7 @@
 \maketitle
 
 \section{Introduction}
-The Fast Fourier Transform (FFT) has been described as perhaps the most important algorithm of our lifetime. The FFT moniker actually refers to a class of algorithms that can compute the Discrete Fourier Transform (DFT) in better than the naive $\mathcal{O}(n^2)$ complexity. FFTs are used across a wide range of disciplines, from audio compression to astrophysics, and have a critical role in a substantial amount of the technology we enjoy today.
+The Fast Fourier Transform (FFT) has been described as perhaps the most important algorithm of our lifetime. The FFT moniker actually refers to a class of algorithms that can compute the Discrete Fourier Transform (DFT) in better than the naive $\mathcal{O}(N^2)$ complexity. FFTs are used across a wide range of disciplines, from audio compression to astrophysics, and have a critical role in a substantial amount of the technology we enjoy today.
 
 For this project, our goal was to explore the classic Cooley-Tukey FFT algorithm in its sequential form, and to parallelize it using Cilk and Cuda. To this end, we have implemented the FFT in several ways, including both iterative and recursive solutions in C++ sequentially and with the Cilk parallel processing extension, as well as an iterative solution in C++ using the Cuda GPU parallel processing framework.
 

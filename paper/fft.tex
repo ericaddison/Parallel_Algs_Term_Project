@@ -58,11 +58,11 @@ FFT_REC(x)
     return x
 \end{lstlisting}
 
-The symmetry seen in lines 11 and 12 arise from the symmetry present in the DFT. For a mathematical explanation of the symmetry of lines 11 and 12, see section \ref{fftSymmetry}. 
+The symmetry seen in lines 11 and 12 arise from the symmetry present in the DFT. For a mathematical explanation of this symmetry, see section \ref{fftSymmetry}. 
 
 
 \subsection{Iterative Implementation}
-Running the recursive FFT algorithm of a vector of length 8 shows the following execution diagram. The first element is combined with the fourth and the second with the sixth. Those products are then combined and create what was termed the Even side of the recursive algorithm. This observation is going to be used to create an iterative FFT algorithm. The leaves of the recursion tree show a particular order in which the initial elements are permuted. If we could shuffle the input the match this ordering in another way, then we could avoid the recursive calls that work down the tree and start from the bottom up.
+Running the recursive FFT algorithm on a vector of length 8 shows the following execution diagram. After walking down the tree, the first element is combined with the fourth and the second with the sixth. Those pairs of elements are combined to begin the climb back up the tree. This observation is going to be used to create an iterative FFT algorithm. The leaves of the recursion tree show a particular order in which the initial elements are permuted. If we could shuffle the input to match this ordering in another way, then we could avoid the recursive calls that work down the tree and start from the bottom up.
 
 \begin{figure}[h]
 \center
@@ -85,7 +85,7 @@ Bit-Reverse(x)
     return y
 \end{lstlisting}
 
-Therefore \texttt{Bit-Reverse()} is used to unroll the recursive execution and transform it into an iterative one. The iterative algorithm is also $T(n) = \mathcal{O}(n * log(n))$ similar to the recursive algorithm.
+Therefore \texttt{Bit-Reverse()} is used to unroll the recursive execution and transform it into an iterative one. The iterative algorithm is also $T(n) = \mathcal{O}(N \log N)$, similar to the recursive algorithm.
 
 A pseudo code implementation of the iterative Tukey-Cooley algorithm is:
 \begin{lstlisting}
